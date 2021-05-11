@@ -24,7 +24,7 @@ typedef void(*VideoCallback)(unsigned char* data_y, unsigned char* data_u, unsig
 // #include  <X11/Xatom.h>
 // #include  <X11/Xutil.h>
  
-#include <iostream>
+//#include <iostream>
 #include <assert.h>
  
 #define SR_OK 0;
@@ -111,9 +111,6 @@ const GLfloat g_TexCoord[] = {
 	1.0f, 1.0f,
 };
  
-#ifdef __cplusplus
-extern "C" {
-#endif
 EMSCRIPTEN_KEEPALIVE
 void initBuffers()
 {
@@ -166,7 +163,7 @@ GLuint initShaderProgram()
      ///< 顶点着色器相关操作
     GLuint nVertexShader   = glCreateShader(GL_VERTEX_SHADER);
     const GLchar* pVS  = g_pGLVS;
-    GLint nVSLen       = static_cast<GLint>(strlen(g_pGLVS));
+    GLint nVSLen       = (GLint)(strlen(g_pGLVS));
     glShaderSource(nVertexShader, 1, (const GLchar**)&pVS, &nVSLen);
     GLint nCompileRet;
     glCompileShader(nVertexShader);
@@ -178,7 +175,7 @@ GLuint initShaderProgram()
 	///< 片段着色器相关操作
 	GLuint nFragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
     const GLchar* pFS = g_pGLFS;
-    GLint nFSLen = static_cast<GLint>(strlen(g_pGLFS));
+    GLint nFSLen = (GLint)(strlen(g_pGLFS));
     glShaderSource(nFragmentShader, 1, (const GLchar**)&pFS, &nFSLen);
     glCompileShader(nFragmentShader);
     glGetShaderiv(nFragmentShader, GL_COMPILE_STATUS, &nCompileRet);
@@ -675,6 +672,4 @@ int main(int argc, char** argv)
 
 	return 0;
 }
-#ifdef __cplusplus
-}
-#endif
+
