@@ -666,7 +666,7 @@ int start()
 			/* use the parser to split the data into frames */
 			//data = inbuf;
 			decodeData(buffer, data_size, 0);
-                        emscripten_sleep(40);
+                        emscripten_sleep(30);
 		}
 		fclose(f);
 		free(buffer);
@@ -720,5 +720,67 @@ EM_BOOL parse(const EmscriptenWebSocketMessageEvent *websocketEvent)
 EM_BOOL onopen(int eventType, const EmscriptenWebSocketMessageEvent *websocketEvent, void *userData)
 {
 	puts("onopen");
+	EMSCRIPTEN_RESULT result;
+	result = emscripten_websocket_send_utf8_text(websocketEvent->socket, "hello");
+	if(result)
+	{
+		printf("fail to send %d\n", result);
+	}
+	retrun EM_TRUE;
 }
+
+EM_BOOL onerror(int eventType, const EmscriptenWebSocketMessageEvent *websocketEvent, void *userData)
+{
+	puts("onerror");
+	retrun EM_TRUE;
+}
+
+EM_BOOL onclose(int eventType, const EmscriptenWebSocketMessageEvent *websocketEvent, void *userData)
+{
+	puts("onclose");
+	retrun EM_TRUE;
+}
+
+EM_BOOL onmessage(int eventType, const EmscriptenWebSocketMessageEvent *websocketEvent, void *userData)
+{
+	puts("onmessage");
+	parse(websocketEvent);
+	retrun EM_TRUE;
+}
+
+int main()
+{
+	memset(oneframe, 0, 1000000);
+	if(!emscripten_websocket_is_supported())
+	{
+		return 0;
+	}
+	EmscriptenWebSocketCreateAttributes ws_attrs = 
+	{
+		"ws://127.0.0.1:5080",
+		NULL,
+		EM_TRUE
+	};
+	
+	EMSCRIPTEN_WEBSOCKET_T ws = emscripten_websocket_new(&ws_attrs);
+	emscripten_websocket_set_onopen_callback(ws, NULL, onopen);
+	emscripten_websocket_set_onerror_callback(ws, NULL, onerror);
+	emscripten_websocket_set_onclose_callback(ws, NULL, onclose);
+	emscripten_websocket_set_onmessage_callback(ws, NULL, onmessage);
+	return 0;	
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
