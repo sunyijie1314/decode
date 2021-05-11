@@ -665,6 +665,7 @@ int start()
 			/* use the parser to split the data into frames */
 			//data = inbuf;
 			decodeData(buffer, data_size, 0);
+                        emscripten_sleep(40);
 		}
 		fclose(f);
 		free(buffer);
