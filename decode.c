@@ -436,6 +436,7 @@ static int decode(AVCodecContext* dec_ctx, AVFrame* frame, AVPacket* pkt, AVFram
 				break;
 			}
 
+			simpleLog("callback one times!\n");
 			RenderFrame(outFrame->data, outFrame->width, outFrame->height);
 			//videoCallback(outFrame->data[0], outFrame->data[1], outFrame->data[2], outFrame->linesize[0], outFrame->linesize[1], outFrame->linesize[2], outFrame->width, outFrame->height, outFrame->pts);
 
@@ -470,11 +471,11 @@ do {
 		}
 
 		/* find the video decoder */
-		if (decoderType == kDecoderType_H264) {
+		//if (decoderType == kDecoderType_H264) {
 			codec = avcodec_find_decoder(AV_CODEC_ID_H264);
-		} else {
-			codec = avcodec_find_decoder(AV_CODEC_ID_H265);
-		}
+		//} else {
+		//	codec = avcodec_find_decoder(AV_CODEC_ID_H265);
+		//}
 
 		if (!codec) {
 			simpleLog("Codec not found\n");
@@ -623,8 +624,8 @@ void vcb_frame(unsigned char* data_y, unsigned char* data_u, unsigned char* data
 
 	fclose(dst);
 }
-
-int main(int argc, char** argv)
+EMSCRIPTEN_KEEPALIVE
+int start()
 {
 		openDecoder(0, kLogLevel_Core);
 
