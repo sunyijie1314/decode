@@ -9,9 +9,13 @@
 #include <stdlib.h>
 #include <string.h>
 
-typedef void(*VideoCallback)(unsigned char* data_y, unsigned char* data_u, unsigned char* data_v, int line1, int line2, int line3, int width, int height, long pts);
-
 #include <libavcodec/avcodec.h>
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+	
+typedef void(*VideoCallback)(unsigned char* data_y, unsigned char* data_u, unsigned char* data_v, int line1, int line2, int line3, int width, int height, long pts);
 
 #define INBUF_SIZE 4096
 
@@ -390,3 +394,8 @@ int main(int argc, char** argv)
 
 	return 0;
 }
+
+#ifdef __cplusplus
+}
+#endif
+	
