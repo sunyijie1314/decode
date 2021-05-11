@@ -24,7 +24,7 @@ typedef void(*VideoCallback)(unsigned char* data_y, unsigned char* data_u, unsig
 // #include  <X11/Xatom.h>
 // #include  <X11/Xutil.h>
  
-#include <iostream>
+//#include <iostream>
 #include <assert.h>
  
 #define SR_OK 0;
@@ -111,9 +111,6 @@ const GLfloat g_TexCoord[] = {
 	1.0f, 1.0f,
 };
  
-#ifdef __cplusplus
-extern "C" {
-#endif
 EMSCRIPTEN_KEEPALIVE
 void initBuffers()
 {
@@ -166,7 +163,7 @@ GLuint initShaderProgram()
      ///< 顶点着色器相关操作
     GLuint nVertexShader   = glCreateShader(GL_VERTEX_SHADER);
     const GLchar* pVS  = g_pGLVS;
-    GLint nVSLen       = static_cast<GLint>(strlen(g_pGLVS));
+    GLint nVSLen       = (GLint)(strlen(g_pGLVS));
     glShaderSource(nVertexShader, 1, (const GLchar**)&pVS, &nVSLen);
     GLint nCompileRet;
     glCompileShader(nVertexShader);
@@ -178,7 +175,7 @@ GLuint initShaderProgram()
 	///< 片段着色器相关操作
 	GLuint nFragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
     const GLchar* pFS = g_pGLFS;
-    GLint nFSLen = static_cast<GLint>(strlen(g_pGLFS));
+    GLint nFSLen = (GLint)(strlen(g_pGLFS));
     glShaderSource(nFragmentShader, 1, (const GLchar**)&pFS, &nFSLen);
     glCompileShader(nFragmentShader);
     glGetShaderiv(nFragmentShader, GL_COMPILE_STATUS, &nCompileRet);
@@ -455,7 +452,7 @@ AVFrame* frame;
 AVFrame* outFrame;
 long ptslist[10];
 
-static int openDecoder(int codecType, long callback, int logLv) {
+static int openDecoder(int codecType, int logLv) {
 	int ret = kErrorCode_Success;
 do {
 		simpleLog("Initialize decoder.");
@@ -529,7 +526,7 @@ do {
 			ptslist[i] = LONG_MAX;
 		}
 
-		videoCallback = (VideoCallback)callback;
+		//videoCallback = (VideoCallback)callback;
 
 	} while (0);
 	simpleLog("Decoder initialized %d.", ret);
@@ -628,7 +625,7 @@ void vcb_frame(unsigned char* data_y, unsigned char* data_u, unsigned char* data
 
 int main(int argc, char** argv)
 {
-		openDecoder(1, vcb_frame, kLogLevel_Core);
+		openDecoder(0, kLogLevel_Core);
 
 		const char* filename = "Forrest_Gump_IMAX.h264";
 		//const char* filename = "FourPeople_1280x720_60_1M.265";
@@ -642,8 +639,8 @@ int main(int argc, char** argv)
 		///* set end of buffer to 0 (this ensures that no overreading happens for damaged MPEG streams) */
 		//memset(inbuf + INBUF_SIZE, 0, AV_INPUT_BUFFER_PADDING_SIZE);
 
-		char* buffer;
-		buffer = (char*)malloc(sizeof(char) * (INBUF_SIZE + AV_INPUT_BUFFER_PADDING_SIZE));
+		unsigned char* buffer;
+		buffer = (unsigned char*)malloc(sizeof(unsigned char) * (INBUF_SIZE + AV_INPUT_BUFFER_PADDING_SIZE));
 		if (buffer == NULL) {
 			simpleLog("Memory error");
 			exit(2);
@@ -674,6 +671,4 @@ int main(int argc, char** argv)
 		closeDecoder();
 
 	return 0;
-}
-#ifdef __cplusplus
 }
