@@ -19,6 +19,7 @@ typedef void(*VideoCallback)(unsigned char* data_y, unsigned char* data_u, unsig
 // #include <emscripten/bind.h>
 // #include <emscripten/val.h>
 #include <emscripten/html5.h>
+#include <emscripten/websocket.h>
  
 // #include  <X11/Xlib.h>
 // #include  <X11/Xatom.h>
@@ -675,3 +676,49 @@ int start()
 
 	return 0;
 }
+
+uint8_t *oneframe = (uint8_t *)malloc(1000000);
+uint32_t num=0;
+int start = 0;
+
+EM_BOOL parse(const EmscriptenWebSocketMessageEvent *websocketEvent)
+{
+	if((*(websocketEvent->data + 12) == 0x00) &&
+	   (*(websocketEvent->data + 13) == 0x00) &&
+	   (*(websocketEvent->data + 14) == 0x01) &&
+	   (*(websocketEvent->data + 15) == 0xba))
+	{
+		if(start != 0)
+		{
+			
+		}
+		start = 1;
+		num =0;
+		memset(oneframe, 0, 1000000);
+		for(int i =0; i< websocketEvent->numBytes; i++)
+		{
+			if((*(websocketEvent->data + 12 +i) == 0x00) &&
+			   (*(websocketEvent->data + 13+i) == 0x00) &&
+			   (*(websocketEvent->data + 14+i) == 0x00) &&
+			   (*(websocketEvent->data + 15+i) == 0x01) &&
+			   (*(websocketEvent->data + 15+i) == 0x09))
+			{
+				memcpy(oneframe + num, websocketEvent->data + 12 +i, websocketEvent->numBytes-12-i);
+				num = num + websocketEvent->numBytes-12-i;
+			}
+		}
+	}
+	else
+	{
+		memcpy(oneframe + num, websocketEvent->data + 12, websocketEvent->numBytes-12);
+		num = num + websocketEvent->numBytes-12;
+	}
+	
+	return EM_TRUE;
+}
+
+EM_BOOL onopen(int eventType, const EmscriptenWebSocketMessageEvent *websocketEvent, void *userData)
+{
+	puts("onopen");
+}
+
