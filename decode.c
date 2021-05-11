@@ -155,7 +155,7 @@ static int decode(AVCodecContext* dec_ctx, AVFrame* frame, AVPacket* pkt, AVFram
 				break;
 			}
 
-			videoCallback(outFrame->data[0], outFrame->data[1], outFrame->data[2], outFrame->linesize[0], outFrame->linesize[1], outFrame->linesize[2], outFrame->width, outFrame->height, outFrame->pts);
+			//videoCallback(outFrame->data[0], outFrame->data[1], outFrame->data[2], outFrame->linesize[0], outFrame->linesize[1], outFrame->linesize[2], outFrame->width, outFrame->height, outFrame->pts);
 
 		}
 	}
