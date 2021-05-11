@@ -679,7 +679,7 @@ int start()
 
 uint8_t *oneframe = (uint8_t *)malloc(1000000);
 uint32_t num=0;
-int start = 0;
+int start1 = 0;
 
 EM_BOOL parse(const EmscriptenWebSocketMessageEvent *websocketEvent)
 {
@@ -692,7 +692,7 @@ EM_BOOL parse(const EmscriptenWebSocketMessageEvent *websocketEvent)
 		{
 			
 		}
-		start = 1;
+		start1 = 1;
 		num =0;
 		memset(oneframe, 0, 1000000);
 		for(int i =0; i< websocketEvent->numBytes; i++)
@@ -726,26 +726,26 @@ EM_BOOL onopen(int eventType, const EmscriptenWebSocketMessageEvent *websocketEv
 	{
 		printf("fail to send %d\n", result);
 	}
-	retrun EM_TRUE;
+	return EM_TRUE;
 }
 
 EM_BOOL onerror(int eventType, const EmscriptenWebSocketMessageEvent *websocketEvent, void *userData)
 {
 	puts("onerror");
-	retrun EM_TRUE;
+	return EM_TRUE;
 }
 
 EM_BOOL onclose(int eventType, const EmscriptenWebSocketMessageEvent *websocketEvent, void *userData)
 {
 	puts("onclose");
-	retrun EM_TRUE;
+	return EM_TRUE;
 }
 
 EM_BOOL onmessage(int eventType, const EmscriptenWebSocketMessageEvent *websocketEvent, void *userData)
 {
 	puts("onmessage");
 	parse(websocketEvent);
-	retrun EM_TRUE;
+	return EM_TRUE;
 }
 
 int main()
