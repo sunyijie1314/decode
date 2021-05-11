@@ -234,7 +234,7 @@ int init(const char* hWindow)
     return 1;
 }
 EMSCRIPTEN_KEEPALIVE
-int RenderFrame( unsigned char* pFrameData, int nFrameWidth, int nFrameHeight)
+int RenderFrame( unsigned char* pFrameData,unsigned char *u, unsigned char *v, int nFrameWidth, int nFrameHeight)
 {
     if(pFrameData==NULL||nFrameWidth<=0||nFrameHeight<=0)
     {
@@ -249,11 +249,11 @@ int RenderFrame( unsigned char* pFrameData, int nFrameWidth, int nFrameHeight)
     
 	glActiveTexture(GL_TEXTURE1);
     glBindTexture(GL_TEXTURE_2D,g_Texture2D[U] );
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_LUMINANCE, nFrameWidth / 2, nFrameHeight / 2, 0, GL_LUMINANCE, GL_UNSIGNED_BYTE, pFrameData + nFrameWidth * nFrameHeight * 5 / 4);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_LUMINANCE, nFrameWidth / 2, nFrameHeight / 2, 0, GL_LUMINANCE, GL_UNSIGNED_BYTE, u);
     
 	glActiveTexture(GL_TEXTURE2);
     glBindTexture(GL_TEXTURE_2D, g_Texture2D[V]);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_LUMINANCE, nFrameWidth / 2, nFrameHeight / 2, 0, GL_LUMINANCE, GL_UNSIGNED_BYTE, pFrameData + nFrameWidth * nFrameHeight);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_LUMINANCE, nFrameWidth / 2, nFrameHeight / 2, 0, GL_LUMINANCE, GL_UNSIGNED_BYTE, v);
     
     glUseProgram(g_ShaderProgram);
     //将所有顶点数据上传至顶点着色器的顶点缓存
@@ -437,7 +437,7 @@ static int decode(AVCodecContext* dec_ctx, AVFrame* frame, AVPacket* pkt, AVFram
 			}
 
 			simpleLog("callback one times!\n");
-			RenderFrame(outFrame->data, outFrame->width, outFrame->height);
+			RenderFrame(outFrame->data[0], outFrame->data[1], outFrame->data[2], outFrame->width, outFrame->height);
 			//videoCallback(outFrame->data[0], outFrame->data[1], outFrame->data[2], outFrame->linesize[0], outFrame->linesize[1], outFrame->linesize[2], outFrame->width, outFrame->height, outFrame->pts);
 
 		}
