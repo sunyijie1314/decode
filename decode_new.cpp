@@ -38,8 +38,8 @@ typedef enum DecoderType {
 	kDecoderType_H265
 }DecoderType;
 
-LogLevel logLevel = kLogLevel_None;
-DecoderType decoderType = kDecoderType_H265;
+int logLevel = kLogLevel_None;
+int decoderType = kDecoderType_H265;
 
 void simpleLog(const char* format, ...) {
 	if (logLevel == kLogLevel_None) {
@@ -95,8 +95,8 @@ void ffmpegLogCallback(void* ptr, int level, const char* fmt, va_list vl) {
 
 VideoCallback videoCallback = NULL;
 
-ErrorCode copyFrameData(AVFrame* src, AVFrame* dst, long ptslist[]) {
-	ErrorCode ret = kErrorCode_Success;
+int copyFrameData(AVFrame* src, AVFrame* dst, long ptslist[]) {
+	int ret = kErrorCode_Success;
 	memcpy(dst->data, src->data, sizeof(src->data));
 	dst->linesize[0] = src->linesize[0];
 	dst->linesize[1] = src->linesize[1];
@@ -119,16 +119,16 @@ ErrorCode copyFrameData(AVFrame* src, AVFrame* dst, long ptslist[]) {
 }
 
 unsigned char* yuvBuffer;
-int videoSize = 0;
-int initBuffer(width, height) {
-	videoSize = avpicture_get_size(AV_PIX_FMT_YUV420P, width, height);
-	int bufferSize = 3 * videoSize;
-	yuvBuffer = (unsigned char*)av_mallocz(bufferSize);
-}
+//int videoSize = 0;
+//int initBuffer(width, height) {
+//	videoSize = avpicture_get_size(AV_PIX_FMT_YUV420P, width, height);
+//	int bufferSize = 3 * videoSize;
+//	yuvBuffer = (unsigned char*)av_mallocz(bufferSize);
+//}
 
-static ErrorCode decode(AVCodecContext* dec_ctx, AVFrame* frame, AVPacket* pkt, AVFrame* outFrame, long ptslist[])
+static int decode(AVCodecContext* dec_ctx, AVFrame* frame, AVPacket* pkt, AVFrame* outFrame, long ptslist[])
 {
-	ErrorCode res = kErrorCode_Success;
+	int res = kErrorCode_Success;
 	char buf[1024];
 	int ret;
 
@@ -170,8 +170,8 @@ AVFrame* frame;
 AVFrame* outFrame;
 long ptslist[10];
 
-ErrorCode openDecoder(int codecType, long callback, int logLv) {
-	ErrorCode ret = kErrorCode_Success;
+int openDecoder(int codecType, int logLv) {
+	int ret = kErrorCode_Success;
 	do {
 		simpleLog("Initialize decoder.");
 
@@ -244,15 +244,15 @@ ErrorCode openDecoder(int codecType, long callback, int logLv) {
 			ptslist[i] = LONG_MAX;
 		}
 
-		videoCallback = (VideoCallback)callback;
+		//videoCallback = (VideoCallback)callback;
 
 	} while (0);
 	simpleLog("Decoder initialized %d.", ret);
 	return ret;
 }
 
-ErrorCode decodeData(unsigned char* data, size_t data_size, long pts) {
-	ErrorCode ret = kErrorCode_Success;
+int decodeData(unsigned char* data, size_t data_size, long pts) {
+	int ret = kErrorCode_Success;
 
 	for (int i = 0; i < 10; i++) {
 		if (ptslist[i] == LONG_MAX) {
@@ -282,13 +282,13 @@ ErrorCode decodeData(unsigned char* data, size_t data_size, long pts) {
 	return ret;
 }
 
-ErrorCode flushDecoder() {
+int flushDecoder() {
 	/* flush the decoder */
 	return decode(c, frame, NULL, outFrame, ptslist);
 }
 
-ErrorCode closeDecoder() {
-	ErrorCode ret = kErrorCode_Success;
+int closeDecoder() {
+	int ret = kErrorCode_Success;
 
 	do {
 		if (parser != NULL) {
@@ -343,50 +343,50 @@ void vcb_frame(unsigned char* data_y, unsigned char* data_u, unsigned char* data
 
 int main(int argc, char** argv)
 {
-//		openDecoder(1, vcb_frame, kLogLevel_Core);
-//
-//		//const char* filename = "Forrest_Gump_IMAX.h264";
-//		const char* filename = "FourPeople_1280x720_60_1M.265";
-//
-//		FILE* f;
-//
-//		//   uint8_t *data;
-//		size_t   data_size;
-//
-//		//uint8_t inbuf[INBUF_SIZE + AV_INPUT_BUFFER_PADDING_SIZE];
-//		///* set end of buffer to 0 (this ensures that no overreading happens for damaged MPEG streams) */
-//		//memset(inbuf + INBUF_SIZE, 0, AV_INPUT_BUFFER_PADDING_SIZE);
-//
-//		char* buffer;
-//		buffer = (char*)malloc(sizeof(char) * (INBUF_SIZE + AV_INPUT_BUFFER_PADDING_SIZE));
-//		if (buffer == NULL) {
-//			simpleLog("Memory error");
-//			exit(2);
-//		}
-//
-//		f = fopen(filename, "rb");
-//		if (!f) {
-//			simpleLog("Could not open %s\n", filename);
-//			exit(1);
-//		}
-//
-//		while (!feof(f)) {
-//			/* read raw data from the input file */
-//			//data_size = fread(inbuf, 1, INBUF_SIZE, f);
-//			data_size = fread(buffer, 1, INBUF_SIZE, f);
-//
-//			if (!data_size)
-//				break;
-//
-//			/* use the parser to split the data into frames */
-//			//data = inbuf;
-//			decodeData(buffer, data_size, 0);
-//		}
-//		fclose(f);
-//		free(buffer);
-//
-//		flushDecoder();
-//		closeDecoder();
+		openDecoder(0, kLogLevel_Core);
+
+		const char* filename = "Forrest_Gump_IMAX.h264";
+		//const char* filename = "FourPeople_1280x720_60_1M.265";
+
+		FILE* f;
+
+		//   uint8_t *data;
+		size_t   data_size;
+
+		//uint8_t inbuf[INBUF_SIZE + AV_INPUT_BUFFER_PADDING_SIZE];
+		///* set end of buffer to 0 (this ensures that no overreading happens for damaged MPEG streams) */
+		//memset(inbuf + INBUF_SIZE, 0, AV_INPUT_BUFFER_PADDING_SIZE);
+
+		unsigned char* buffer;
+		buffer = (unsigned char*)malloc(sizeof(unsigned char) * (INBUF_SIZE + AV_INPUT_BUFFER_PADDING_SIZE));
+		if (buffer == NULL) {
+			simpleLog("Memory error");
+			exit(2);
+		}
+
+		f = fopen(filename, "rb");
+		if (!f) {
+			simpleLog("Could not open %s\n", filename);
+			exit(1);
+		}
+
+		while (!feof(f)) {
+			/* read raw data from the input file */
+			//data_size = fread(inbuf, 1, INBUF_SIZE, f);
+			data_size = fread(buffer, 1, INBUF_SIZE, f);
+
+			if (!data_size)
+				break;
+
+			/* use the parser to split the data into frames */
+			//data = inbuf;
+			decodeData(buffer, data_size, 0);
+		}
+		fclose(f);
+		free(buffer);
+
+		flushDecoder();
+		closeDecoder();
 
 	return 0;
 }
