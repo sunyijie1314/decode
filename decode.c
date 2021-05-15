@@ -1,4 +1,6 @@
- /**
+//emcc decode.c --preload-file Forrest_Gump_IMAX.h264 ./ffmpeg/lib/libavcodec.a ./ffmpeg/lib/libavutil.a ./ffmpeg/lib/libswscale.a -I \
+//"ffmpeg/include/" -o test.js -s ASYNCIFY=1 -lwebsocket.js 
+/**
   * @file
   * video decoding with libavcodec API example
   *
