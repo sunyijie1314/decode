@@ -677,7 +677,7 @@ int start()
 	return 0;
 }
 
-uint8_t *oneframe = (uint8_t *)malloc(1000000);
+uint8_t *oneframe;
 uint32_t num=0;
 int start1 = 0;
 
@@ -750,6 +750,7 @@ EM_BOOL onmessage(int eventType, const EmscriptenWebSocketMessageEvent *websocke
 
 int main()
 {
+        oneframe = (uint8_t *)malloc(1000000);
 	memset(oneframe, 0, 1000000);
 	if(!emscripten_websocket_is_supported())
 	{

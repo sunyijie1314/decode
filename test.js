@@ -186,7 +186,7 @@ var Module = typeof Module !== 'undefined' ? Module : {};
     }
   
    }
-   loadPackage({"files": [{"filename": "/Forrest_Gump_IMAX.h264", "start": 0, "end": 2903401, "audio": 0}], "remote_package_size": 2903401, "package_uuid": "ab2d864a-dab0-4924-b687-121fcd07eff5"});
+   loadPackage({"files": [{"filename": "/Forrest_Gump_IMAX.h264", "start": 0, "end": 2903401, "audio": 0}], "remote_package_size": 2903401, "package_uuid": "27fd7d7d-f94c-4ac1-815d-74dc0850c7b5"});
   
   })();
   
@@ -5630,6 +5630,127 @@ var ASM_CONSTS = {
       return success ? 0 : -5;
     }
 
+  function _emscripten_websocket_is_supported() {
+      return typeof WebSocket !== 'undefined';
+    }
+
+  var WS={sockets:[null],socketEvent:null};
+  function _emscripten_websocket_new(createAttributes) {
+      if (typeof WebSocket === 'undefined') {
+        return -1;
+      }
+      if (!createAttributes) {
+        return -5;
+      }
+  
+      var createAttrs = createAttributes>>2;
+      var url = UTF8ToString(HEAP32[createAttrs]);
+      var protocols = HEAP32[createAttrs+1];
+      // TODO: Add support for createOnMainThread==false; currently all WebSocket connections are created on the main thread.
+      // var createOnMainThread = HEAP32[createAttrs+2];
+  
+      var socket = protocols ? new WebSocket(url, UTF8ToString(protocols).split(',')) : new WebSocket(url);
+      // We always marshal received WebSocket data back to Wasm, so enable receiving the data as arraybuffers for easy marshalling.
+      socket.binaryType = 'arraybuffer';
+      // TODO: While strictly not necessary, this ID would be good to be unique across all threads to avoid confusion.
+      var socketId = WS.sockets.length;
+      WS.sockets[socketId] = socket;
+  
+      return socketId;
+    }
+
+  function _emscripten_websocket_send_utf8_text(socketId, textData) {
+      var socket = WS.sockets[socketId];
+      if (!socket) {
+        return -3;
+      }
+  
+      var str = UTF8ToString(textData);
+      socket.send(str);
+      return 0;
+    }
+
+  function _emscripten_websocket_set_onclose_callback_on_thread(socketId, userData, callbackFunc, thread) {
+      if (!WS.socketEvent) WS.socketEvent = _malloc(1024); // TODO: sizeof(EmscriptenWebSocketCloseEvent), which is the largest event struct
+  
+      var socket = WS.sockets[socketId];
+      if (!socket) {
+        return -3;
+      }
+  
+      socket.onclose = function(e) {
+        HEAPU32[WS.socketEvent>>2] = socketId;
+        HEAPU32[(WS.socketEvent+4)>>2] = e.wasClean;
+        HEAPU32[(WS.socketEvent+8)>>2] = e.code;
+        stringToUTF8(e.reason, HEAPU32[(WS.socketEvent+10)>>2], 512);
+        (function(a1, a2, a3) { return dynCall_iiii.apply(null, [callbackFunc, a1, a2, a3]); })(0/*TODO*/, WS.socketEvent, userData);
+      }
+      return 0;
+    }
+
+  function _emscripten_websocket_set_onerror_callback_on_thread(socketId, userData, callbackFunc, thread) {
+      if (!WS.socketEvent) WS.socketEvent = _malloc(1024); // TODO: sizeof(EmscriptenWebSocketCloseEvent), which is the largest event struct
+  
+      var socket = WS.sockets[socketId];
+      if (!socket) {
+        return -3;
+      }
+  
+      socket.onerror = function(e) {
+        HEAPU32[WS.socketEvent>>2] = socketId;
+        (function(a1, a2, a3) { return dynCall_iiii.apply(null, [callbackFunc, a1, a2, a3]); })(0/*TODO*/, WS.socketEvent, userData);
+      }
+      return 0;
+    }
+
+  function _emscripten_websocket_set_onmessage_callback_on_thread(socketId, userData, callbackFunc, thread) {
+      if (!WS.socketEvent) WS.socketEvent = _malloc(1024); // TODO: sizeof(EmscriptenWebSocketCloseEvent), which is the largest event struct
+  
+      var socket = WS.sockets[socketId];
+      if (!socket) {
+        return -3;
+      }
+  
+      socket.onmessage = function(e) {
+        HEAPU32[WS.socketEvent>>2] = socketId;
+        if (typeof e.data === 'string') {
+          var len = lengthBytesUTF8(e.data)+1;
+          var buf = _malloc(len);
+          stringToUTF8(e.data, buf, len);
+          HEAPU32[(WS.socketEvent+12)>>2] = 1; // text data
+        } else {
+          var len = e.data.byteLength;
+          var buf = _malloc(len);
+          HEAP8.set(new Uint8Array(e.data), buf);
+          HEAPU32[(WS.socketEvent+12)>>2] = 0; // binary data
+        }
+        HEAPU32[(WS.socketEvent+4)>>2] = buf;
+        HEAPU32[(WS.socketEvent+8)>>2] = len;
+        (function(a1, a2, a3) { return dynCall_iiii.apply(null, [callbackFunc, a1, a2, a3]); })(0/*TODO*/, WS.socketEvent, userData);
+        _free(buf);
+      }
+      return 0;
+    }
+
+  function _emscripten_websocket_set_onopen_callback_on_thread(socketId, userData, callbackFunc, thread) {
+  // TODO:
+  //    if (thread == 2 ||
+  //      (thread == _pthread_self()) return emscripten_websocket_set_onopen_callback_on_calling_thread(socketId, userData, callbackFunc);
+  
+      if (!WS.socketEvent) WS.socketEvent = _malloc(1024); // TODO: sizeof(EmscriptenWebSocketCloseEvent), which is the largest event struct
+  
+      var socket = WS.sockets[socketId];
+      if (!socket) {
+        return -3;
+      }
+  
+      socket.onopen = function(e) {
+        HEAPU32[WS.socketEvent>>2] = socketId;
+        (function(a1, a2, a3) { return dynCall_iiii.apply(null, [callbackFunc, a1, a2, a3]); })(0/*TODO*/, WS.socketEvent, userData);
+      }
+      return 0;
+    }
+
   var ENV={};
   
   function getExecutableName() {
@@ -6575,6 +6696,13 @@ var asmLibraryArg = {
   "emscripten_webgl_get_current_context": _emscripten_webgl_get_current_context,
   "emscripten_webgl_init_context_attributes": _emscripten_webgl_init_context_attributes,
   "emscripten_webgl_make_context_current": _emscripten_webgl_make_context_current,
+  "emscripten_websocket_is_supported": _emscripten_websocket_is_supported,
+  "emscripten_websocket_new": _emscripten_websocket_new,
+  "emscripten_websocket_send_utf8_text": _emscripten_websocket_send_utf8_text,
+  "emscripten_websocket_set_onclose_callback_on_thread": _emscripten_websocket_set_onclose_callback_on_thread,
+  "emscripten_websocket_set_onerror_callback_on_thread": _emscripten_websocket_set_onerror_callback_on_thread,
+  "emscripten_websocket_set_onmessage_callback_on_thread": _emscripten_websocket_set_onmessage_callback_on_thread,
+  "emscripten_websocket_set_onopen_callback_on_thread": _emscripten_websocket_set_onopen_callback_on_thread,
   "environ_get": _environ_get,
   "environ_sizes_get": _environ_sizes_get,
   "exit": _exit,
@@ -6654,6 +6782,9 @@ var _malloc = Module["_malloc"] = createExportWrapper("malloc");
 var _free = Module["_free"] = createExportWrapper("free");
 
 /** @type {function(...*):?} */
+var _main = Module["_main"] = createExportWrapper("main");
+
+/** @type {function(...*):?} */
 var ___errno_location = Module["___errno_location"] = createExportWrapper("__errno_location");
 
 /** @type {function(...*):?} */
@@ -6712,6 +6843,9 @@ var _memalign = Module["_memalign"] = createExportWrapper("memalign");
 var dynCall_viiii = Module["dynCall_viiii"] = createExportWrapper("dynCall_viiii");
 
 /** @type {function(...*):?} */
+var dynCall_iiii = Module["dynCall_iiii"] = createExportWrapper("dynCall_iiii");
+
+/** @type {function(...*):?} */
 var dynCall_v = Module["dynCall_v"] = createExportWrapper("dynCall_v");
 
 /** @type {function(...*):?} */
@@ -6725,9 +6859,6 @@ var dynCall_vi = Module["dynCall_vi"] = createExportWrapper("dynCall_vi");
 
 /** @type {function(...*):?} */
 var dynCall_vii = Module["dynCall_vii"] = createExportWrapper("dynCall_vii");
-
-/** @type {function(...*):?} */
-var dynCall_iiii = Module["dynCall_iiii"] = createExportWrapper("dynCall_iiii");
 
 /** @type {function(...*):?} */
 var dynCall_viiiiii = Module["dynCall_viiiiii"] = createExportWrapper("dynCall_viiiiii");
@@ -6777,7 +6908,7 @@ var _asyncify_start_rewind = Module["_asyncify_start_rewind"] = createExportWrap
 /** @type {function(...*):?} */
 var _asyncify_stop_rewind = Module["_asyncify_stop_rewind"] = createExportWrapper("asyncify_stop_rewind");
 
-var _ff_h264_cabac_tables = Module['_ff_h264_cabac_tables'] = 48517;
+var _ff_h264_cabac_tables = Module['_ff_h264_cabac_tables'] = 48597;
 
 
 
@@ -6989,6 +7120,7 @@ if (!Object.getOwnPropertyDescriptor(Module, "IDBStore")) Module["IDBStore"] = f
 if (!Object.getOwnPropertyDescriptor(Module, "runAndAbortIfError")) Module["runAndAbortIfError"] = function() { abort("'runAndAbortIfError' was not exported. add it to EXTRA_EXPORTED_RUNTIME_METHODS (see the FAQ)") };
 if (!Object.getOwnPropertyDescriptor(Module, "Asyncify")) Module["Asyncify"] = function() { abort("'Asyncify' was not exported. add it to EXTRA_EXPORTED_RUNTIME_METHODS (see the FAQ)") };
 if (!Object.getOwnPropertyDescriptor(Module, "Fibers")) Module["Fibers"] = function() { abort("'Fibers' was not exported. add it to EXTRA_EXPORTED_RUNTIME_METHODS (see the FAQ)") };
+if (!Object.getOwnPropertyDescriptor(Module, "WS")) Module["WS"] = function() { abort("'WS' was not exported. add it to EXTRA_EXPORTED_RUNTIME_METHODS (see the FAQ)") };
 if (!Object.getOwnPropertyDescriptor(Module, "warnOnce")) Module["warnOnce"] = function() { abort("'warnOnce' was not exported. add it to EXTRA_EXPORTED_RUNTIME_METHODS (see the FAQ)") };
 if (!Object.getOwnPropertyDescriptor(Module, "stackSave")) Module["stackSave"] = function() { abort("'stackSave' was not exported. add it to EXTRA_EXPORTED_RUNTIME_METHODS (see the FAQ)") };
 if (!Object.getOwnPropertyDescriptor(Module, "stackRestore")) Module["stackRestore"] = function() { abort("'stackRestore' was not exported. add it to EXTRA_EXPORTED_RUNTIME_METHODS (see the FAQ)") };
@@ -7027,6 +7159,57 @@ dependenciesFulfilled = function runCaller() {
   if (!calledRun) run();
   if (!calledRun) dependenciesFulfilled = runCaller; // try this again later, after new deps are fulfilled
 };
+
+function callMain(args) {
+  assert(runDependencies == 0, 'cannot call main when async dependencies remain! (listen on Module["onRuntimeInitialized"])');
+  assert(__ATPRERUN__.length == 0, 'cannot call main when preRun functions remain to be called');
+
+  var entryFunction = Module['_main'];
+
+  args = args || [];
+
+  var argc = args.length+1;
+  var argv = stackAlloc((argc + 1) * 4);
+  HEAP32[argv >> 2] = allocateUTF8OnStack(thisProgram);
+  for (var i = 1; i < argc; i++) {
+    HEAP32[(argv >> 2) + i] = allocateUTF8OnStack(args[i - 1]);
+  }
+  HEAP32[(argv >> 2) + argc] = 0;
+
+  try {
+
+    var ret = entryFunction(argc, argv);
+
+    // In PROXY_TO_PTHREAD builds, we should never exit the runtime below, as
+    // execution is asynchronously handed off to a pthread.
+    // if we are saving the stack, then do not call exit, we are not
+    // really exiting now, just unwinding the JS stack
+    if (!keepRuntimeAlive()) {
+      // if we're not running an evented main loop, it's time to exit
+      exit(ret, /* implicit = */ true);
+    }
+  }
+  catch(e) {
+    if (e instanceof ExitStatus) {
+      // exit() throws this once it's done to make sure execution
+      // has been stopped completely
+      return;
+    } else if (e == 'unwind') {
+      // running an evented main loop, don't immediately exit
+      return;
+    } else {
+      var toLog = e;
+      if (e && typeof e === 'object' && e.stack) {
+        toLog = [e, e.stack];
+      }
+      err('exception thrown: ' + toLog);
+      quit_(1, e);
+    }
+  } finally {
+    calledMain = true;
+
+  }
+}
 
 function stackCheckInit() {
   // This is normally called automatically during __wasm_call_ctors but need to
@@ -7069,7 +7252,7 @@ function run(args) {
 
     if (Module['onRuntimeInitialized']) Module['onRuntimeInitialized']();
 
-    assert(!Module['_main'], 'compiled without a main, but one is present. if you added it from JS, use Module["onRuntimeInitialized"]');
+    if (shouldRunNow) callMain(args);
 
     postRun();
   }
@@ -7168,6 +7351,11 @@ if (Module['preInit']) {
     Module['preInit'].pop()();
   }
 }
+
+// shouldRunNow refers to calling main(), not run().
+var shouldRunNow = true;
+
+if (Module['noInitialRun']) shouldRunNow = false;
 
 run();
 
