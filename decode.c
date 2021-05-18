@@ -1,4 +1,4 @@
-//emcc decode.c --preload-file Forrest_Gump_IMAX.h264 ./ffmpeg/lib/libavcodec.a ./ffmpeg/lib/libavutil.a ./ffmpeg/lib/libswscale.a -I \
+//emcc decode.c ./ffmpeg/lib/libavcodec.a ./ffmpeg/lib/libavutil.a ./ffmpeg/lib/libswscale.a -I \
 //"ffmpeg/include/" -o test.js -s ASYNCIFY=1 -lwebsocket.js 
 /**
   * @file
@@ -750,7 +750,7 @@ EM_BOOL onmessage(int eventType, const EmscriptenWebSocketMessageEvent *websocke
 	return EM_TRUE;
 }
 
-int main()
+int webassembly()
 {
         oneframe = (uint8_t *)malloc(1000000);
 	memset(oneframe, 0, 1000000);
