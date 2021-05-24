@@ -702,7 +702,7 @@ EM_BOOL parse(const EmscriptenWebSocketMessageEvent *websocketEvent)
 		}
 		start1 = 1;
 		num =0;
-		memset(oneframe, 0, 300000);
+		memset(oneframe, 0, 200000);
 		for(int i =0; i< websocketEvent->numBytes; i++)
 		{
 			if((*(websocketEvent->data + 12 +i) == 0x00) &&
@@ -821,8 +821,8 @@ EMSCRIPTEN_KEEPALIVE
 int webassembly()
 {
 	openDecoder(0, kLogLevel_Core);
-        oneframe = (uint8_t *)malloc(300000);
-	memset(oneframe, 0, 300000);
+        oneframe = (uint8_t *)malloc(200000);
+	memset(oneframe, 0, 200000);
 	//oneframe1 = (uint8_t *)malloc(1000000);
 	//memset(oneframe1, 0, 1000000);
 	emscripten_sleep(1000);
