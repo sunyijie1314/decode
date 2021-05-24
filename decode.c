@@ -751,6 +751,7 @@ EM_BOOL onmessage(int eventType, const EmscriptenWebSocketMessageEvent *websocke
 	return EM_TRUE;
 }
 
+EMSCRIPTEN_KEEPALIVE
 int webassembly()
 {
 	openDecoder(0, kLogLevel_Core);
