@@ -690,9 +690,10 @@ EM_BOOL parse(const EmscriptenWebSocketMessageEvent *websocketEvent)
 	   (*(websocketEvent->data + 14) == 0x01) &&
 	   (*(websocketEvent->data + 15) == 0xba))
 	{
-		if(start != 0)
+		if(start1 != 0)
 		{
-			
+			decodeData(oneframe, num, 0);
+                        emscripten_sleep(30);
 		}
 		start1 = 1;
 		num =0;
@@ -752,6 +753,7 @@ EM_BOOL onmessage(int eventType, const EmscriptenWebSocketMessageEvent *websocke
 
 int webassembly()
 {
+	openDecoder(0, kLogLevel_Core);
         oneframe = (uint8_t *)malloc(1000000);
 	memset(oneframe, 0, 1000000);
 	if(!emscripten_websocket_is_supported())
