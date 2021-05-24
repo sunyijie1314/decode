@@ -707,7 +707,7 @@ EM_BOOL parse(const EmscriptenWebSocketMessageEvent *websocketEvent)
 			   (*(websocketEvent->data + 13+i) == 0x00) &&
 			   (*(websocketEvent->data + 14+i) == 0x00) &&
 			   (*(websocketEvent->data + 15+i) == 0x01) &&
-			   (*(websocketEvent->data + 15+i) == 0x09))
+			   (*(websocketEvent->data + 16+i) == 0x09))
 			{
 				memcpy(oneframe + num, websocketEvent->data + 12 +i, websocketEvent->numBytes-12-i);
 				num = num + websocketEvent->numBytes-12-i;
