@@ -832,7 +832,7 @@ int webassembly()
 	}
 	EmscriptenWebSocketCreateAttributes ws_attrs = 
 	{
-		"ws://127.0.0.1:5080",
+		"ws://207.208.220.117:5080",
 		NULL,
 		EM_TRUE
 	};
