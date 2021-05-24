@@ -1,5 +1,5 @@
 //emcc decode.c ./ffmpeg/lib/libavcodec.a ./ffmpeg/lib/libavutil.a ./ffmpeg/lib/libswscale.a -I \
-//"ffmpeg/include/" -o test.js -s ASYNCIFY=1 -lwebsocket.js 
+//"ffmpeg/include/" -o test.js -s ASYNCIFY=1 -lwebsocket.js -s ALLOW_MEMORY_GROWTH=1 
 /**
   * @file
   * video decoding with libavcodec API example
