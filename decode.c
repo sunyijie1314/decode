@@ -693,7 +693,7 @@ EM_BOOL parse(const EmscriptenWebSocketMessageEvent *websocketEvent)
 		if(start1 != 0)
 		{
 		        for (int i = 0; i<num;i++)
-                              printf("%x, *(oneframe +i)"); 
+                              printf("%x", *(oneframe +i)); 
          	        decodeData(oneframe, num, 0);
                         emscripten_sleep(30);
 		}
