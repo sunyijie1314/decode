@@ -693,12 +693,12 @@ EM_BOOL parse(const EmscriptenWebSocketMessageEvent *websocketEvent)
 	{
 		if(start1 != 0)
 		{
-		        memset(oneframe1, 0, 1000000);
-			memcpy(oneframe1, oneframe, num);
+		        //memset(oneframe1, 0, 1000000);
+			//memcpy(oneframe1, oneframe, num);
                         for (int i = 0; i<num;i++)
                               printf("%x", *(oneframe +i)); 
-         	        decodeData(oneframe1, num, 0);
-                        emscripten_sleep(30);
+         	        decodeData(oneframe, num, 0);
+                        //emscripten_sleep(30);
 		}
 		start1 = 1;
 		num =0;
@@ -713,13 +713,31 @@ EM_BOOL parse(const EmscriptenWebSocketMessageEvent *websocketEvent)
 			{
 				memcpy(oneframe + num, websocketEvent->data + 12 +i, websocketEvent->numBytes-12-i);
 				num = num + websocketEvent->numBytes-12-i;
+				break;
 			}
 		}
 	}
 	else
 	{
-		memcpy(oneframe + num, websocketEvent->data + 12, websocketEvent->numBytes-12);
-		num = num + websocketEvent->numBytes-12;
+		int i=0;
+		for(i =0; i< websocketEvent->numBytes-12; i++)
+		{
+			if((*(websocketEvent->data + 12 +i) == 0x00) &&
+			   (*(websocketEvent->data + 13+i) == 0x00) &&
+			   (*(websocketEvent->data + 14+i) == 0x00) &&
+			   (*(websocketEvent->data + 15+i) == 0x01) &&
+			   (*(websocketEvent->data + 16+i) == 0x09))
+			{
+				memcpy(oneframe + num, websocketEvent->data + 12 +i, websocketEvent->numBytes-12-i);
+				num = num + websocketEvent->numBytes-12-i;
+				break;
+			}
+		}
+		if(i == websocketEvent->numBytes-12)
+		{
+			memcpy(oneframe + num, websocketEvent->data + 12, websocketEvent->numBytes-12);
+			num = num + websocketEvent->numBytes-12;
+		}
 	}
 	
 	return EM_TRUE;
@@ -787,7 +805,7 @@ EM_BOOL onclose(int eventType, const EmscriptenWebSocketMessageEvent *websocketE
 EM_BOOL onmessage(int eventType, const EmscriptenWebSocketMessageEvent *websocketEvent, void *userData)
 {
 	puts("onmessage");
-	parse1(websocketEvent);
+	parse(websocketEvent);
 	return EM_TRUE;
 }
 
