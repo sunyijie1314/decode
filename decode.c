@@ -725,6 +725,36 @@ EM_BOOL parse(const EmscriptenWebSocketMessageEvent *websocketEvent)
 	return EM_TRUE;
 }
 
+EM_BOOL parse1(const EmscriptenWebSocketMessageEvent *websocketEvent)
+{
+	memset(oneframe, 0, 1000000);
+	num =0;
+	for(int i =0; i< websocketEvent->numBytes -12; i++)
+	{
+		if((*(websocketEvent->data + 12 +i) == 0x00) &&
+		   (*(websocketEvent->data + 13+i) == 0x00) &&
+		   (*(websocketEvent->data + 14+i) == 0x00) &&
+		   (*(websocketEvent->data + 15+i) == 0x01) &&
+		   (*(websocketEvent->data + 16+i) == 0x09))
+		{
+			memcpy(oneframe + num, websocketEvent->data + 12 +i, websocketEvent->numBytes-12-i);
+			num = num + websocketEvent->numBytes-12-i;
+		}
+		else
+		{
+			memcpy(oneframe + num, websocketEvent->data + 12, websocketEvent->numBytes-12);
+			num = num + websocketEvent->numBytes-12;
+		}
+	}
+	
+        for (int i = 0; i<num;i++)
+                printf("%x", *(oneframe +i)); 
+        decodeData(oneframe1, num, 0);
+        emscripten_sleep(30);
+
+	return EM_TRUE;
+}
+
 EM_BOOL onopen(int eventType, const EmscriptenWebSocketMessageEvent *websocketEvent, void *userData)
 {
 	puts("onopen");
@@ -752,7 +782,7 @@ EM_BOOL onclose(int eventType, const EmscriptenWebSocketMessageEvent *websocketE
 EM_BOOL onmessage(int eventType, const EmscriptenWebSocketMessageEvent *websocketEvent, void *userData)
 {
 	puts("onmessage");
-	parse(websocketEvent);
+	parse1(websocketEvent);
 	return EM_TRUE;
 }
 
