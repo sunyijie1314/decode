@@ -717,6 +717,14 @@ EM_BOOL parse(const EmscriptenWebSocketMessageEvent *websocketEvent)
 			}
 		}
 	}
+	else if((*(websocketEvent->data + 12) == 0x00) &&
+	   	(*(websocketEvent->data + 13) == 0x00) &&
+	   	(*(websocketEvent->data + 14) == 0x01) &&
+	   	(*(websocketEvent->data + 15) == 0xe0))
+	{
+		memcpy(oneframe + num, websocketEvent->data + 12 +19, websocketEvent->numBytes-12-19);
+		num = num + websocketEvent->numBytes-12-19;
+	}
 	else
 	{
 		int i=0;
