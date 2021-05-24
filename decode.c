@@ -727,8 +727,6 @@ EM_BOOL parse(const EmscriptenWebSocketMessageEvent *websocketEvent)
 
 EM_BOOL parse1(const EmscriptenWebSocketMessageEvent *websocketEvent)
 {
-	memset(oneframe, 0, 1000000);
-	num =0;
 	int i = 0;
 	for(i =0; i< websocketEvent->numBytes -12; i++)
 	{
@@ -737,7 +735,14 @@ EM_BOOL parse1(const EmscriptenWebSocketMessageEvent *websocketEvent)
 		   (*(websocketEvent->data + 14+i) == 0x00) &&
 		   (*(websocketEvent->data + 15+i) == 0x01) &&
 		   (*(websocketEvent->data + 16+i) == 0x09))
-		{
+		{			
+			for (int j = 0; j<num;j++)
+                		printf("%x", *(oneframe +j)); 
+        		decodeData(oneframe, num, 0);
+			memset(oneframe, 0, 1000000);
+			num =0;
+        		emscripten_sleep(30);
+			
 			memcpy(oneframe + num, websocketEvent->data + 12 +i, websocketEvent->numBytes-12-i);
 			num = num + websocketEvent->numBytes-12-i;
 		}
@@ -749,10 +754,7 @@ EM_BOOL parse1(const EmscriptenWebSocketMessageEvent *websocketEvent)
 		num = num + websocketEvent->numBytes-12;
 	}
 	
-        for (int j = 0; j<num;j++)
-                printf("%x", *(oneframe +j)); 
-        decodeData(oneframe, num, 0);
-        emscripten_sleep(30);
+        
 
 	return EM_TRUE;
 }
