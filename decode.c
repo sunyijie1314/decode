@@ -695,8 +695,8 @@ EM_BOOL parse(const EmscriptenWebSocketMessageEvent *websocketEvent)
 		{
 		        //memset(oneframe1, 0, 1000000);
 			//memcpy(oneframe1, oneframe, num);
-                        for (int i = 0; i<num;i++)
-                              printf("%x", *(oneframe +i)); 
+                        //for (int i = 0; i<num;i++)
+                              //printf("%x", *(oneframe +i)); 
          	        decodeData(oneframe, num, 0);
                         //emscripten_sleep(30);
 		}
