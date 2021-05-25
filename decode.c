@@ -828,6 +828,7 @@ int webassembly()
 	emscripten_sleep(1000);
         if(!emscripten_websocket_is_supported())
 	{
+		printf("this version is not support websocket!");
 		return 0;
 	}
 	EmscriptenWebSocketCreateAttributes ws_attrs = 
